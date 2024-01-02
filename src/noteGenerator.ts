@@ -83,20 +83,22 @@ export function noteGenerator(
 		return maybeCanvasView ? maybeCanvasView['canvas'] : null
 	}
 
-	const isSystemPromptNode = (text: string) =>
-		text.trim().startsWith('SYSTEM PROMPT')
-
+	const systemPromptPattern = /^(?:\s*|#+\s*[^\n]+\s*\n+)SYSTEM PROMPT(?<prompt>.*)$/m
+	const getSystemPromptFromNode = (text: string) =>
+		text.match(systemPromptPattern)?.groups?.prompt?.trim()
+	
 	const getSystemPrompt = async (node: CanvasNode) => {
 		let foundPrompt: string | null = null
 
 		await visitNodeAndAncestors(node, async (n: CanvasNode) => {
 			const text = await readNodeContent(n)
-			if (text && isSystemPromptNode(text)) {
-				foundPrompt = text
-				return false
-			} else {
-				return true
+			if (text) {
+				foundPrompt = getSystemPromptFromNode(text)
+				if (foundPrompt) {
+					return false
+				}
 			}
+			return true
 		})
 
 		return foundPrompt || settings.systemPrompt
