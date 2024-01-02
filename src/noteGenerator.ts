@@ -129,7 +129,7 @@ export function noteGenerator(
 			let shouldContinue = true
 
 			if (nodeText) {
-				if (isSystemPromptNode(nodeText)) return true
+				if (getSystemPromptFromNode(nodeText)) return true
 
 				let nodeTokens = encoding.encode(nodeText)
 				let keptNodeTokens: number
